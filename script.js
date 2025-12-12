@@ -1,289 +1,177 @@
-// =========================
-// VARIÁVEIS PRINCIPAIS
-// =========================
-let historico = JSON.parse(localStorage.getItem("historico")) || [];
-let tecnico = localStorage.getItem("tecnico") || "";
-let gasolina = Number(localStorage.getItem("gasolina") || 0);
-
-// =========================
-// FUNÇÕES DE INTERFACE
-// =========================
-function alternarAba(aba) {
-    document.querySelectorAll(".pagina").forEach(p => p.classList.remove("visible"));
-    document.getElementById(aba).classList.add("visible");
-
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    event.target.classList.add("active");
-
-    atualizarDashboard();
-    listar();
-}
-
-// =========================
-// MODAL
-// =========================
-function abrirCadastro() {
-    document.getElementById("modal").classList.remove("hidden");
-}
-function fecharCadastro() {
-    document.getElementById("modal").classList.add("hidden");
-}
-
-// =========================
-// SALVAR INSTALAÇÃO
-// =========================
-function salvarCadastro() {
-    let codigo = document.getElementById("codigo").value;
-    let data = document.getElementById("data").value;
-
-    if (!codigo || !(codigo.length == 5 || codigo.length == 7)) {
-        alert("Código deve ter 5 ou 7 dígitos.");
-        return;
+class ControleInstalacoes {
+    constructor() {
+        this.tecnicoId = this.getTecnicoId();
+        this.instalacoes = this.carregarDados();
+        this.gasolina = this.carregarGasolina();
+        this.init();
     }
 
-    if (!data) {
-        alert("Selecione a data!");
-        return;
+    init() {
+        // Inicializar data atual
+        const hoje = this.getDataHoje();
+        document.getElementById('data').value = hoje;
+        document.getElementById('dataGasolina').value = hoje;
+        document.getElementById('dataModal').value = hoje;
+        
+        // Configurar listeners
+        document.getElementById('instalacaoForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.adicionarInstalação();
+        });
+
+        document.getElementById('gasolinaForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.adicionarGasolina();
+        });
+
+        // Sistema de abas
+        this.inicializarAbas();
+        
+        // Configuração automática
+        document.getElementById('nomeTecnico').addEventListener('input', () => this.salvarTecnico());
+        document.getElementById('valorGasolinaConfig').addEventListener('input', () => this.salvarGasolinaConfig());
+        
+        // Carregar configurações
+        this.carregarConfiguracoes();
+        
+        // Atualizar interface
+        this.atualizarInterface();
+        this.mostrarTecnicoAtual();
+        this.atualizarDashboard();
+        this.listarHistorico();
     }
 
-    historico.push({ codigo, data });
-    localStorage.setItem("historico", JSON.stringify(historico));
-
-    fecharCadastro();
-    listar();
-    atualizarDashboard();
-}
-
-// =========================
-// LISTAR HISTÓRICO
-// =========================
-function listar(filtro = historico) {
-    let div = document.getElementById("lista");
-    div.innerHTML = "";
-
-    filtro.forEach((item, i) => {
-        div.innerHTML += `
-            <div class="item">
-                <div class="info">
-                    <strong>Código:</strong> ${item.codigo}<br>
-                    <strong>Data:</strong> ${item.data}
-                </div>
-                <button onclick="excluir(${i})">Excluir</button>
-            </div>
-        `;
-    });
-}
-
-// =========================
-// EXCLUIR
-// =========================
-function excluir(i) {
-    if (!confirm("Excluir instalação?")) return;
-
-    historico.splice(i, 1);
-    localStorage.setItem("historico", JSON.stringify(historico));
-    listar();
-    atualizarDashboard();
-}
-
-// =========================
-// FILTROS
-// =========================
-function filtrar(tipo) {
-    let hoje = new Date().toISOString().slice(0,10);
-    let mes = hoje.slice(0,7);
-
-    let inicio = document.getElementById("inicio").value;
-    let fim = document.getElementById("fim").value;
-
-    let filtrado = [];
-
-    if (tipo === "hoje") {
-        filtrado = historico.filter(h => h.data === hoje);
-    }
-    if (tipo === "mes") {
-        filtrado = historico.filter(h => h.data.startsWith(mes));
-    }
-    if (tipo === "todos") {
-        filtrado = historico;
-    }
-    if (tipo === "personalizado") {
-        filtrado = historico.filter(h => h.data >= inicio && h.data <= fim);
+    // =========================
+    // SISTEMA DE ABAS
+    // =========================
+    inicializarAbas() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabId = e.target.getAttribute('data-tab');
+                
+                // Remover classe active de todas as abas e conteúdos
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Adicionar classe active à aba e conteúdo clicados
+                e.target.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+                
+                // Atualizar conteúdo específico
+                if (tabId === 'dashboard') {
+                    this.atualizarDashboard();
+                } else if (tabId === 'historico') {
+                    this.listarHistorico();
+                }
+            });
+        });
     }
 
-    listar(filtrado);
-}
-
-// =========================
-// PREÇOS AUTOMÁTICOS
-// =========================
-function calcularGanhos() {
-    let mes = new Date().toISOString().slice(0,7);
-
-    let totalDia = {};
-    historico.forEach(h => {
-        if (h.data.startsWith(mes)) {
-            if (!totalDia[h.data]) totalDia[h.data] = 0;
-            totalDia[h.data]++;
+    // =========================
+    // FUNÇÕES BÁSICAS
+    // =========================
+    getTecnicoId() {
+        let id = localStorage.getItem('tecnicoId');
+        if (!id) {
+            id = 'tec_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('tecnicoId', id);
         }
-    });
-
-    let ganhos = 0;
-
-    for (let dia in totalDia) {
-        let qtd = totalDia[dia];
-
-        if (qtd === 1) ganhos += 90;
-        else if (qtd === 2) ganhos += 100 * 2;
-        else if (qtd >= 3) ganhos += 110 * qtd;
+        return id;
     }
 
-    return ganhos;
-}
+    mostrarTecnicoAtual() {
+        document.getElementById('tecnicoInfo').textContent = this.tecnicoId;
+        document.getElementById('infoTecnicoId').textContent = this.tecnicoId;
+    }
 
-// =========================
-// DASHBOARD
-// =========================
-function atualizarDashboard() {
-    let ganhos = calcularGanhos();
-    let saldo = ganhos - gasolina;
+    getDataHoje() {
+        return new Date().toISOString().split('T')[0];
+    }
 
-    document.getElementById("cardTotal").innerText = historico.length;
-    document.getElementById("cardGanhos").innerText = "R$ " + ganhos.toFixed(2);
-    document.getElementById("cardGasolina").innerText = "R$ " + gasolina.toFixed(2);
-    document.getElementById("cardSaldo").innerText = "R$ " + saldo.toFixed(2);
-}
+    calcularValor(quantidadeDia) {
+        if (quantidadeDia === 1) return 90;
+        if (quantidadeDia === 2) return 100;
+        return 110;
+    }
 
-// =========================
-// CONFIGURAÇÕES
-// =========================
-function salvarTecnico() {
-    tecnico = document.getElementById("nomeTecnico").value;
-    localStorage.setItem("tecnico", tecnico);
-}
+    // =========================
+    // INSTALAÇÕES
+    // =========================
+    adicionarInstalação() {
+        const codigo = document.getElementById('codigo').value;
+        const nome = document.getElementById('nome').value;
+        const data = document.getElementById('data').value;
 
-function salvarGasolina() {
-    gasolina = Number(document.getElementById("valorGasolina").value);
-    localStorage.setItem("gasolina", gasolina);
-    atualizarDashboard();
-}
-
-document.getElementById("nomeTecnico").value = tecnico;
-document.getElementById("valorGasolina").value = gasolina;
-
-// =========================
-// NOVO MÊS
-// =========================
-function novoMes() {
-    if (!confirm("Iniciar novo mês? Os dados atuais serão arquivados.")) return;
-
-    historico = [];
-    gasolina = 0;
-
-    localStorage.setItem("historico", "[]");
-    localStorage.setItem("gasolina", 0);
-
-    atualizarDashboard();
-    listar();
-}
-
-// =========================
-// PDF
-// =========================
-function gerarPDFmes() {
-    let mes = new Date().toISOString().slice(0,7);
-
-    let html = `
-        <h1>Relatório - ${mes}</h1>
-        <h3>Técnico: ${tecnico}</h3>
-        <hr>
-        <h2>Instalações</h2>
-    `;
-
-    historico.forEach(h => {
-        if (h.data.startsWith(mes)) {
-            html += `<p>${h.data} — Código: ${h.codigo}</p>`;
+        if (!/^\d{5}$/.test(codigo) && !/^\d{7}$/.test(codigo)) {
+            alert('Código deve ter 5 ou 7 dígitos!');
+            return;
         }
-    });
 
-    html += `
-        <h2>Total: R$ ${calcularGanhos().toFixed(2)}</h2>
-    `;
+        if (!nome.trim()) {
+            alert('Digite o nome do cliente!');
+            return;
+        }
 
-    let opt = {
-        margin: 10,
-        filename: `relatorio_${mes}.pdf`,
-        html2canvas: {},
-        jsPDF: { unit: 'mm', format: 'a4' }
-    };
-
-    html2pdf().from(html).set(opt).save();
-}
-
-// =========================
-// CSV
-// =========================
-function exportarCSV() {
-    let csv = "data,codigo\n";
-    
-    historico.forEach(h => {
-        csv += `${h.data},${h.codigo}\n`;
-    });
-
-    let blob = new Blob([csv], { type: "text/csv" });
-    let url = URL.createObjectURL(blob);
-
-    let a = document.createElement("a");
-    a.href = url;
-    a.download = "historico.csv";
-    a.click();
-
-    URL.revokeObjectURL(url);
-}
-
-// =========================
-// BACKUP / RESTAURAR
-// =========================
-function backupLocalStorage() {
-    let dados = JSON.stringify(localStorage);
-    let blob = new Blob([dados], { type: "application/json" });
-
-    let a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "backup_installerpro.json";
-    a.click();
-}
-
-function restaurarLocalStorage() {
-    let input = document.createElement("input");
-    input.type = "file";
-
-    input.onchange = e => {
-        let file = e.target.files[0];
-        let reader = new FileReader();
-
-        reader.onload = () => {
-            let json = JSON.parse(reader.result);
-
-            for (let chave in json) {
-                localStorage.setItem(chave, json[chave]);
-            }
-
-            historico = JSON.parse(localStorage.getItem("historico")) || [];
-            tecnico = localStorage.getItem("tecnico") || "";
-            gasolina = Number(localStorage.getItem("gasolina") || 0);
-
-            atualizarDashboard();
-            listar();
-            alert("Backup restaurado!");
+        const instalacao = {
+            codigo,
+            nome,
+            data,
+            id: Date.now()
         };
 
-        reader.readAsText(file);
-    };
+        this.instalacoes.push(instalacao);
+        this.salvarDados();
+        this.atualizarInterface();
+        this.atualizarDashboard();
 
-    input.click();
-}
+        document.getElementById('instalacaoForm').reset();
+        document.getElementById('data').value = data;
+    }
 
-// INICIALIZAÇÃO
-listar();
-atualizarDashboard();
+    // =========================
+    // GASOLINA
+    // =========================
+    adicionarGasolina() {
+        const data = document.getElementById('dataGasolina').value;
+        const valor = parseFloat(document.getElementById('valorGasolina').value);
+        const observacao = document.getElementById('observacaoGasolina').value;
+
+        if (!valor || valor <= 0) {
+            alert('Digite um valor válido para a gasolina!');
+            return;
+        }
+
+        const registroGasolina = {
+            data,
+            valor,
+            observacao,
+            id: Date.now()
+        };
+
+        this.gasolina.push(registroGasolina);
+        this.salvarDados();
+        this.atualizarInterface();
+        this.atualizarDashboard();
+
+        document.getElementById('gasolinaForm').reset();
+        document.getElementById('dataGasolina').value = data;
+    }
+
+    // =========================
+    // EXCLUSÃO
+    // =========================
+    excluirInstalacao(id) {
+        if (confirm('Tem certeza que deseja excluir esta instalação?')) {
+            this.instalacoes = this.instalacoes.filter(inst => inst.id !== id);
+            this.salvarDados();
+            this.atualizarInterface();
+            this.atualizarDashboard();
+        }
+    }
+
+    excluirGasolina(id) {
+        if (confirm('Tem certeza que deseja excluir este gasto?')) {
+            this.gasolina = this.gasolina.filter(gas => gas.id !==

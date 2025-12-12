@@ -1,104 +1,282 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Installer PRO</title>
-    <link rel="stylesheet" href="style.css" />
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installer PRO - Controle de Instalações</title>
+    <link rel="stylesheet" href="style.css">
     <!-- Biblioteca para gerar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
+    <div class="container">
+        <!-- Header com Título e Abas -->
+        <div class="header">
+            <h1 class="main-title">📊 Installer PRO</h1>
+            <p class="subtitle">Sistema completo para técnicos de fibra ótica</p>
+            
+            <!-- Sistema de Abas -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab active" data-tab="dashboard">Dashboard</button>
+                    <button class="tab" data-tab="instalacoes">Instalações</button>
+                    <button class="tab" data-tab="gasolina">Gasolina</button>
+                    <button class="tab" data-tab="historico">Histórico</button>
+                    <button class="tab" data-tab="config">Configurações</button>
+                </div>
+            </div>
+        </div>
 
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <h1>Installer PRO</h1>
-        <button class="btn" onclick="abrirCadastro()">+ Nova Instalação</button>
-    </header>
+        <!-- Info do Técnico -->
+        <div class="tecnico-info">
+            <div class="text-center">
+                <small>Técnico ID:</small>
+                <div class="tecnico-id" id="tecnicoInfo">Carregando...</div>
+            </div>
+        </div>
 
-    <!-- MENU ABA -->
-    <div class="tabs">
-        <button class="tab active" onclick="alternarAba('dashboard')">Dashboard</button>
-        <button class="tab" onclick="alternarAba('historico')">Histórico</button>
-        <button class="tab" onclick="alternarAba('config')">Configurações</button>
+        <!-- ABA: DASHBOARD -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <span>📈</span>
+                        <h3>Resumo do Dia</h3>
+                    </div>
+                    <div id="resumoDia" class="resumo-grid"></div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <h4>Total Instalações</h4>
+                        <p id="cardTotal" class="stat-value">0</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <h4>Ganhos do Mês</h4>
+                        <p id="cardGanhos" class="stat-value">R$ 0,00</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">⛽</div>
+                        <h4>Gastos Gasolina</h4>
+                        <p id="cardGasolina" class="stat-value">R$ 0,00</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">💵</div>
+                        <h4>Saldo Final</h4>
+                        <p id="cardSaldo" class="stat-value">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>📊</span>
+                        <h3>Resumo Financeiro</h3>
+                    </div>
+                    <div id="totalMes"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button onclick="controle.gerarPDFmes()" class="btn btn-primary">
+                        <span>📄</span>
+                        Gerar PDF do Mês
+                    </button>
+                    <button onclick="controle.exportarCSV()" class="btn btn-success">
+                        <span>📁</span>
+                        Exportar CSV
+                    </button>
+                    <button onclick="controle.novoMes()" class="btn btn-danger">
+                        <span>🔄</span>
+                        Novo Mês
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>👥</span>
+                        <h3>Todos os Técnicos</h3>
+                    </div>
+                    <button onclick="controle.mostrarTodosTecnicos()" class="btn btn-info">
+                        <span>👁️</span>
+                        Ver Todos os Técnicos
+                    </button>
+                    <div id="listaTecnicos" class="tecnicos-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: INSTALAÇÕES -->
+        <div id="instalacoes" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span>📋</span>
+                    <h3>Nova Instalação</h3>
+                </div>
+                <form id="instalacaoForm">
+                    <div class="form-group">
+                        <label class="form-label">Código do Cliente (5 ou 7 dígitos)</label>
+                        <input type="text" id="codigo" class="form-input" placeholder="12345 ou 1234567" maxlength="7" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nome do Cliente</label>
+                        <input type="text" id="nome" class="form-input" placeholder="Nome completo do cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data da Instalação</label>
+                        <input type="date" id="data" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>➕</span>
+                        Adicionar Instalação
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>📈</span>
+                    <h3>Instalações do Mês</h3>
+                </div>
+                <div id="listaInstalacoes"></div>
+            </div>
+        </div>
+
+        <!-- ABA: GASOLINA -->
+        <div id="gasolina" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span>⛽</span>
+                    <h3>Controle de Gasolina</h3>
+                </div>
+                <form id="gasolinaForm">
+                    <div class="form-group">
+                        <label class="form-label">Data do Abastecimento</label>
+                        <input type="date" id="dataGasolina" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Valor Abastecido (R$)</label>
+                        <input type="number" id="valorGasolina" class="form-input" placeholder="50.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Observação (opcional)</label>
+                        <input type="text" id="observacaoGasolina" class="form-input" placeholder="Posto, combustível, etc.">
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-block">
+                        <span>⛽</span>
+                        Adicionar Gasolina
+                    </button>
+                </form>
+                
+                <div class="total-gasolina">
+                    <h4>Total Gasolina no Mês: R$ <span id="totalGasolinaMes">0.00</span></h4>
+                </div>
+                
+                <div id="listaGasolina" class="gasolina-list"></div>
+            </div>
+        </div>
+
+        <!-- ABA: HISTÓRICO -->
+        <div id="historico" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span>📜</span>
+                    <h3>Histórico Completo</h3>
+                </div>
+                
+                <div class="filtros-container">
+                    <h4>Filtros:</h4>
+                    <div class="filtros">
+                        <button class="btn btn-small" onclick="controle.filtrar('hoje')">Hoje</button>
+                        <button class="btn btn-small" onclick="controle.filtrar('mes')">Este Mês</button>
+                        <button class="btn btn-small" onclick="controle.filtrar('todos')">Todo Histórico</button>
+                        <button class="btn btn-small" onclick="controle.filtrar('personalizado')">Personalizado</button>
+                    </div>
+                    
+                    <div class="filtro-datas">
+                        <div class="form-group">
+                            <label>Data Início</label>
+                            <input type="date" id="inicio" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Data Fim</label>
+                            <input type="date" id="fim" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="listaHistorico" class="historico-lista"></div>
+
+                <div class="action-buttons">
+                    <button onclick="controle.backupLocalStorage()" class="btn btn-info">
+                        <span>💾</span>
+                        Backup LocalStorage
+                    </button>
+                    <button onclick="controle.restaurarLocalStorage()" class="btn btn-warning">
+                        <span>🔄</span>
+                        Restaurar Backup
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: CONFIGURAÇÕES -->
+        <div id="config" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span>⚙️</span>
+                    <h3>Configurações</h3>
+                </div>
+                
+                <div class="config-group">
+                    <label class="form-label">Nome do Técnico</label>
+                    <input type="text" id="nomeTecnico" class="form-input" placeholder="Seu nome">
+                    <small>Altere automaticamente ao digitar</small>
+                </div>
+
+                <div class="config-group">
+                    <label class="form-label">Valor Total da Gasolina (R$)</label>
+                    <input type="number" id="valorGasolinaConfig" class="form-input" placeholder="0.00" step="0.01">
+                    <small>Valor total gasto com gasolina</small>
+                </div>
+
+                <div class="info-box">
+                    <h4>📊 Informações do Sistema</h4>
+                    <p><strong>ID do Técnico:</strong> <span id="infoTecnicoId"></span></p>
+                    <p><strong>Total de Instalações:</strong> <span id="infoTotalInstalacoes">0</span></p>
+                    <p><strong>Total em Gasolina:</strong> R$ <span id="infoTotalGasolina">0.00</span></p>
+                    <p><strong>Saldo Disponível:</strong> R$ <span id="infoSaldo">0.00</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL RÁPIDO DE NOVA INSTALAÇÃO -->
+        <button class="btn-floating" onclick="controle.abrirModalCadastroRapido()">
+            <span>➕</span>
+        </button>
     </div>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="pagina visible">
-
-        <div class="cards">
-            <div class="card">
-                <h3>Total de Instalações</h3>
-                <p id="cardTotal">0</p>
-            </div>
-
-            <div class="card">
-                <h3>Ganhos do Mês</h3>
-                <p id="cardGanhos">R$ 0,00</p>
-            </div>
-
-            <div class="card">
-                <h3>Gastos Gasolina</h3>
-                <p id="cardGasolina">R$ 0,00</p>
-            </div>
-
-            <div class="card">
-                <h3>Saldo Final</h3>
-                <p id="cardSaldo">R$ 0,00</p>
-            </div>
-        </div>
-
-        <button class="btn full" onclick="gerarPDFmes()">Gerar PDF do Mês</button>
-        <button class="btn danger full" onclick="novoMes()">Novo Mês</button>
-    </section>
-
-    <!-- HISTÓRICO -->
-    <section id="historico" class="pagina">
-        <h2>Histórico Completo</h2>
-
-        <div class="filtros">
-            <button class="btn" onclick="filtrar('hoje')">Hoje</button>
-            <button class="btn" onclick="filtrar('mes')">Este Mês</button>
-            <button class="btn" onclick="filtrar('todos')">Todo Histórico</button>
-
-            <input type="date" id="inicio">
-            <input type="date" id="fim">
-            <button class="btn" onclick="filtrar('personalizado')">Filtrar</button>
-        </div>
-
-        <div id="lista"></div>
-
-        <button class="btn full" onclick="exportarCSV()">Exportar CSV</button>
-        <button class="btn full" onclick="backupLocalStorage()">Backup</button>
-        <button class="btn danger full" onclick="restaurarLocalStorage()">Restaurar Backup</button>
-    </section>
-
-    <!-- CONFIGURAÇÕES -->
-    <section id="config" class="pagina">
-        <h2>Configurações</h2>
-
-        <label>Nome do Técnico</label>
-        <input type="text" id="nomeTecnico" oninput="salvarTecnico()">
-
-        <label>Valor da Gasolina (R$)</label>
-        <input type="number" id="valorGasolina" oninput="salvarGasolina()">
-    </section>
-
-    <!-- MODAL CADASTRO -->
-    <div id="modal" class="modal hidden">
+    <!-- MODAL DE CADASTRO RÁPIDO -->
+    <div id="modalCadastroRapido" class="modal hidden">
         <div class="modal-content">
-            <h2>Nova Instalação</h2>
-
-            <label>Código (5 ou 7 dígitos):</label>
-            <input type="number" id="codigo">
-
-            <label>Data:</label>
-            <input type="date" id="data">
+            <h2>Nova Instalação Rápida</h2>
+            
+            <div class="form-group">
+                <label>Código (5 ou 7 dígitos):</label>
+                <input type="text" id="codigoModal" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label>Data:</label>
+                <input type="date" id="dataModal" class="form-input">
+            </div>
 
             <div class="modal-actions">
-                <button class="btn danger" onclick="fecharCadastro()">Cancelar</button>
-                <button class="btn" onclick="salvarCadastro()">Salvar</button>
+                <button class="btn btn-danger" onclick="controle.fecharModalCadastroRapido()">Cancelar</button>
+                <button class="btn btn-primary" onclick="controle.salvarCadastroRapido()">Salvar</button>
             </div>
         </div>
     </div>
