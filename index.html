@@ -5,281 +5,516 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Installer PRO - Controle de Instalações</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Biblioteca para gerar PDF -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Header com Título e Abas -->
-        <div class="header">
-            <h1 class="main-title">📊 Installer PRO</h1>
-            <p class="subtitle">Sistema completo para técnicos de fibra ótica</p>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <h2>Installer<span>PRO</span></h2>
+            <p class="logo-sub">Fibra Ótica</p>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <div class="user-details">
+                <h4 id="tecnicoNome">Técnico</h4>
+                <p class="user-id" id="tecnicoInfo">ID: carregando...</p>
+            </div>
+        </div>
+        
+        <nav class="menu">
+            <a href="#" class="menu-item active" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item" data-tab="instalacoes">
+                <i class="fas fa-wifi"></i>
+                <span>Instalações</span>
+            </a>
+            <a href="#" class="menu-item" data-tab="gasolina">
+                <i class="fas fa-gas-pump"></i>
+                <span>Gasolina</span>
+            </a>
+            <a href="#" class="menu-item" data-tab="historico">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="#" class="menu-item" data-tab="config">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </a>
+            <a href="#" class="menu-item" data-tab="tecnicos">
+                <i class="fas fa-users"></i>
+                <span>Técnicos</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="status">
+                <div class="status-dot online"></div>
+                <span>Sistema Online</span>
+            </div>
+            <button class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Pesquisar instalações...">
+            </div>
             
-            <!-- Sistema de Abas -->
-            <div class="tabs-container">
-                <div class="tabs">
-                    <button class="tab active" data-tab="dashboard">Dashboard</button>
-                    <button class="tab" data-tab="instalacoes">Instalações</button>
-                    <button class="tab" data-tab="gasolina">Gasolina</button>
-                    <button class="tab" data-tab="historico">Histórico</button>
-                    <button class="tab" data-tab="config">Configurações</button>
+            <div class="top-actions">
+                <button class="btn-notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="date-display">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
                 </div>
             </div>
-        </div>
-
-        <!-- Info do Técnico -->
-        <div class="tecnico-info">
-            <div class="text-center">
-                <small>Técnico ID:</small>
-                <div class="tecnico-id" id="tecnicoInfo">Carregando...</div>
-            </div>
-        </div>
-
-        <!-- ABA: DASHBOARD -->
-        <div id="dashboard" class="tab-content active">
-            <div class="dashboard-cards">
-                <div class="card">
-                    <div class="card-header">
-                        <span>📈</span>
-                        <h3>Resumo do Dia</h3>
-                    </div>
-                    <div id="resumoDia" class="resumo-grid"></div>
-                </div>
-
-                <div class="cards-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">📦</div>
-                        <h4>Total Instalações</h4>
-                        <p id="cardTotal" class="stat-value">0</p>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">💰</div>
-                        <h4>Ganhos do Mês</h4>
-                        <p id="cardGanhos" class="stat-value">R$ 0,00</p>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">⛽</div>
-                        <h4>Gastos Gasolina</h4>
-                        <p id="cardGasolina" class="stat-value">R$ 0,00</p>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">💵</div>
-                        <h4>Saldo Final</h4>
-                        <p id="cardSaldo" class="stat-value">R$ 0,00</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <span>📊</span>
-                        <h3>Resumo Financeiro</h3>
-                    </div>
-                    <div id="totalMes"></div>
-                </div>
-
-                <div class="action-buttons">
-                    <button onclick="controle.gerarPDFmes()" class="btn btn-primary">
-                        <span>📄</span>
-                        Gerar PDF do Mês
-                    </button>
-                    <button onclick="controle.exportarCSV()" class="btn btn-success">
-                        <span>📁</span>
-                        Exportar CSV
-                    </button>
-                    <button onclick="controle.novoMes()" class="btn btn-danger">
-                        <span>🔄</span>
-                        Novo Mês
-                    </button>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <span>👥</span>
-                        <h3>Todos os Técnicos</h3>
-                    </div>
-                    <button onclick="controle.mostrarTodosTecnicos()" class="btn btn-info">
-                        <span>👁️</span>
-                        Ver Todos os Técnicos
-                    </button>
-                    <div id="listaTecnicos" class="tecnicos-list"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABA: INSTALAÇÕES -->
-        <div id="instalacoes" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <span>📋</span>
-                    <h3>Nova Instalação</h3>
-                </div>
-                <form id="instalacaoForm">
-                    <div class="form-group">
-                        <label class="form-label">Código do Cliente (5 ou 7 dígitos)</label>
-                        <input type="text" id="codigo" class="form-input" placeholder="12345 ou 1234567" maxlength="7" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nome do Cliente</label>
-                        <input type="text" id="nome" class="form-input" placeholder="Nome completo do cliente" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Data da Instalação</label>
-                        <input type="date" id="data" class="form-input" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <span>➕</span>
-                        Adicionar Instalação
-                    </button>
-                </form>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <span>📈</span>
-                    <h3>Instalações do Mês</h3>
-                </div>
-                <div id="listaInstalacoes"></div>
-            </div>
-        </div>
-
-        <!-- ABA: GASOLINA -->
-        <div id="gasolina" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <span>⛽</span>
-                    <h3>Controle de Gasolina</h3>
-                </div>
-                <form id="gasolinaForm">
-                    <div class="form-group">
-                        <label class="form-label">Data do Abastecimento</label>
-                        <input type="date" id="dataGasolina" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Valor Abastecido (R$)</label>
-                        <input type="number" id="valorGasolina" class="form-input" placeholder="50.00" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Observação (opcional)</label>
-                        <input type="text" id="observacaoGasolina" class="form-input" placeholder="Posto, combustível, etc.">
-                    </div>
-                    <button type="submit" class="btn btn-warning btn-block">
-                        <span>⛽</span>
-                        Adicionar Gasolina
-                    </button>
-                </form>
-                
-                <div class="total-gasolina">
-                    <h4>Total Gasolina no Mês: R$ <span id="totalGasolinaMes">0.00</span></h4>
+        </header>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard -->
+            <div id="dashboard" class="tab-content active">
+                <div class="page-header">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
+                    <p>Resumo completo do seu desempenho</p>
                 </div>
                 
-                <div id="listaGasolina" class="gasolina-list"></div>
-            </div>
-        </div>
-
-        <!-- ABA: HISTÓRICO -->
-        <div id="historico" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <span>📜</span>
-                    <h3>Histórico Completo</h3>
-                </div>
-                
-                <div class="filtros-container">
-                    <h4>Filtros:</h4>
-                    <div class="filtros">
-                        <button class="btn btn-small" onclick="controle.filtrar('hoje')">Hoje</button>
-                        <button class="btn btn-small" onclick="controle.filtrar('mes')">Este Mês</button>
-                        <button class="btn btn-small" onclick="controle.filtrar('todos')">Todo Histórico</button>
-                        <button class="btn btn-small" onclick="controle.filtrar('personalizado')">Personalizado</button>
-                    </div>
-                    
-                    <div class="filtro-datas">
-                        <div class="form-group">
-                            <label>Data Início</label>
-                            <input type="date" id="inicio" class="form-input">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-1">
+                        <div class="stat-icon">
+                            <i class="fas fa-wifi"></i>
                         </div>
-                        <div class="form-group">
-                            <label>Data Fim</label>
-                            <input type="date" id="fim" class="form-input">
+                        <div class="stat-info">
+                            <h3>Total Instalações</h3>
+                            <p class="stat-number" id="cardTotal">0</p>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i> 12%
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-2">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Ganhos do Mês</h3>
+                            <p class="stat-number" id="cardGanhos">R$ 0,00</p>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i> 8%
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-3">
+                        <div class="stat-icon">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Gastos Gasolina</h3>
+                            <p class="stat-number" id="cardGasolina">R$ 0,00</p>
+                        </div>
+                        <div class="stat-trend down">
+                            <i class="fas fa-arrow-down"></i> 5%
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-4">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Saldo Final</h3>
+                            <p class="stat-number" id="cardSaldo">R$ 0,00</p>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i> 15%
                         </div>
                     </div>
                 </div>
-
-                <div id="listaHistorico" class="historico-lista"></div>
-
-                <div class="action-buttons">
-                    <button onclick="controle.backupLocalStorage()" class="btn btn-info">
-                        <span>💾</span>
-                        Backup LocalStorage
-                    </button>
-                    <button onclick="controle.restaurarLocalStorage()" class="btn btn-warning">
-                        <span>🔄</span>
-                        Restaurar Backup
-                    </button>
+                
+                <!-- Charts and Actions -->
+                <div class="dashboard-main">
+                    <div class="dashboard-left">
+                        <!-- Quick Actions -->
+                        <div class="card quick-actions">
+                            <h3><i class="fas fa-bolt"></i> Ações Rápidas</h3>
+                            <div class="actions-grid">
+                                <button class="action-btn action-1" onclick="controle.abrirModalCadastroRapido()">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>Nova Instalação</span>
+                                </button>
+                                <button class="action-btn action-2" onclick="controle.adicionarGasolinaRapido()">
+                                    <i class="fas fa-gas-pump"></i>
+                                    <span>Adicionar Gasolina</span>
+                                </button>
+                                <button class="action-btn action-3" onclick="controle.gerarPDFmes()">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>Gerar PDF</span>
+                                </button>
+                                <button class="action-btn action-4" onclick="controle.exportarCSV()">
+                                    <i class="fas fa-file-csv"></i>
+                                    <span>Exportar CSV</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Today's Summary -->
+                        <div class="card today-summary">
+                            <h3><i class="fas fa-calendar-day"></i> Resumo de Hoje</h3>
+                            <div id="resumoDia" class="summary-content">
+                                <!-- Preenchido por JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-right">
+                        <!-- Financial Summary -->
+                        <div class="card financial-summary">
+                            <h3><i class="fas fa-chart-pie"></i> Resumo Financeiro</h3>
+                            <div id="totalMes" class="financial-content">
+                                <!-- Preenchido por JS -->
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Installations -->
+                        <div class="card recent-installations">
+                            <h3><i class="fas fa-clock"></i> Instalações Recentes</h3>
+                            <div id="recentInstalacoes" class="recent-list">
+                                <!-- Preenchido por JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- ABA: CONFIGURAÇÕES -->
-        <div id="config" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <span>⚙️</span>
-                    <h3>Configurações</h3>
+            
+            <!-- Instalações -->
+            <div id="instalacoes" class="tab-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-wifi"></i> Instalações</h1>
+                    <p>Gerencie suas instalações de fibra ótica</p>
                 </div>
                 
-                <div class="config-group">
-                    <label class="form-label">Nome do Técnico</label>
-                    <input type="text" id="nomeTecnico" class="form-input" placeholder="Seu nome">
-                    <small>Altere automaticamente ao digitar</small>
+                <div class="instalacoes-content">
+                    <!-- Formulário -->
+                    <div class="card form-card">
+                        <h3><i class="fas fa-plus-circle"></i> Nova Instalação</h3>
+                        <form id="instalacaoForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><i class="fas fa-barcode"></i> Código do Cliente</label>
+                                    <input type="text" id="codigo" placeholder="5 ou 7 dígitos" maxlength="7" required>
+                                    <small>Digite 5 ou 7 dígitos numéricos</small>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-user"></i> Nome do Cliente</label>
+                                    <input type="text" id="nome" placeholder="Nome completo" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar"></i> Data da Instalação</label>
+                                <input type="date" id="data" required>
+                            </div>
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-check"></i>
+                                Adicionar Instalação
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Lista -->
+                    <div class="card list-card">
+                        <div class="card-header-actions">
+                            <h3><i class="fas fa-list"></i> Todas as Instalações</h3>
+                            <div class="card-actions">
+                                <button class="btn-filter" onclick="controle.filtrar('hoje')">
+                                    <i class="fas fa-filter"></i>
+                                    Hoje
+                                </button>
+                                <button class="btn-filter" onclick="controle.filtrar('mes')">
+                                    <i class="fas fa-filter"></i>
+                                    Este Mês
+                                </button>
+                            </div>
+                        </div>
+                        <div id="listaInstalacoes" class="instalacoes-list">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
                 </div>
-
-                <div class="config-group">
-                    <label class="form-label">Valor Total da Gasolina (R$)</label>
-                    <input type="number" id="valorGasolinaConfig" class="form-input" placeholder="0.00" step="0.01">
-                    <small>Valor total gasto com gasolina</small>
+            </div>
+            
+            <!-- Gasolina -->
+            <div id="gasolina" class="tab-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-gas-pump"></i> Controle de Gasolina</h1>
+                    <p>Registre seus gastos com combustível</p>
                 </div>
-
-                <div class="info-box">
-                    <h4>📊 Informações do Sistema</h4>
-                    <p><strong>ID do Técnico:</strong> <span id="infoTecnicoId"></span></p>
-                    <p><strong>Total de Instalações:</strong> <span id="infoTotalInstalacoes">0</span></p>
-                    <p><strong>Total em Gasolina:</strong> R$ <span id="infoTotalGasolina">0.00</span></p>
-                    <p><strong>Saldo Disponível:</strong> R$ <span id="infoSaldo">0.00</span></p>
+                
+                <div class="gasolina-content">
+                    <!-- Formulário -->
+                    <div class="card form-card">
+                        <h3><i class="fas fa-gas-pump"></i> Novo Abastecimento</h3>
+                        <form id="gasolinaForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><i class="fas fa-calendar"></i> Data</label>
+                                    <input type="date" id="dataGasolina" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-money-bill-wave"></i> Valor (R$)</label>
+                                    <input type="number" id="valorGasolina" placeholder="50.00" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-sticky-note"></i> Observação</label>
+                                <input type="text" id="observacaoGasolina" placeholder="Posto, tipo de combustível...">
+                            </div>
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-check"></i>
+                                Adicionar Gasolina
+                            </button>
+                        </form>
+                        
+                        <div class="total-display">
+                            <h4><i class="fas fa-chart-bar"></i> Total do Mês</h4>
+                            <p class="total-value">R$ <span id="totalGasolinaMes">0.00</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista -->
+                    <div class="card list-card">
+                        <h3><i class="fas fa-history"></i> Histórico de Abastecimentos</h3>
+                        <div id="listaGasolina" class="gasolina-list">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Histórico -->
+            <div id="historico" class="tab-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-history"></i> Histórico</h1>
+                    <p>Histórico completo e ferramentas de exportação</p>
+                </div>
+                
+                <div class="historico-content">
+                    <!-- Filtros -->
+                    <div class="card filter-card">
+                        <h3><i class="fas fa-filter"></i> Filtros Avançados</h3>
+                        <div class="filters-grid">
+                            <button class="filter-btn" onclick="controle.filtrar('hoje')">
+                                <i class="fas fa-sun"></i>
+                                Hoje
+                            </button>
+                            <button class="filter-btn" onclick="controle.filtrar('mes')">
+                                <i class="fas fa-calendar-alt"></i>
+                                Este Mês
+                            </button>
+                            <button class="filter-btn" onclick="controle.filtrar('todos')">
+                                <i class="fas fa-infinity"></i>
+                                Todo Histórico
+                            </button>
+                            <button class="filter-btn" onclick="controle.filtrar('personalizado')">
+                                <i class="fas fa-calendar-range"></i>
+                                Personalizado
+                            </button>
+                        </div>
+                        
+                        <div class="custom-filter">
+                            <div class="form-group">
+                                <label>Data Início</label>
+                                <input type="date" id="inicio">
+                            </div>
+                            <div class="form-group">
+                                <label>Data Fim</label>
+                                <input type="date" id="fim">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Export Tools -->
+                    <div class="card export-card">
+                        <h3><i class="fas fa-download"></i> Exportar Dados</h3>
+                        <div class="export-grid">
+                            <button class="export-btn pdf" onclick="controle.gerarPDFmes()">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Gerar PDF</span>
+                            </button>
+                            <button class="export-btn csv" onclick="controle.exportarCSV()">
+                                <i class="fas fa-file-csv"></i>
+                                <span>Exportar CSV</span>
+                            </button>
+                            <button class="export-btn backup" onclick="controle.backupLocalStorage()">
+                                <i class="fas fa-save"></i>
+                                <span>Backup</span>
+                            </button>
+                            <button class="export-btn restore" onclick="controle.restaurarLocalStorage()">
+                                <i class="fas fa-upload"></i>
+                                <span>Restaurar</span>
+                            </button>
+                        </div>
+                        
+                        <div class="new-month-section">
+                            <h4><i class="fas fa-sync-alt"></i> Novo Período</h4>
+                            <p>Inicie um novo mês zerando os dados atuais</p>
+                            <button class="btn-danger" onclick="controle.novoMes()">
+                                <i class="fas fa-redo"></i>
+                                Iniciar Novo Mês
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista -->
+                    <div class="card list-card wide">
+                        <h3><i class="fas fa-list-ul"></i> Histórico Completo</h3>
+                        <div id="listaHistorico" class="historico-lista">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Configurações -->
+            <div id="config" class="tab-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-cog"></i> Configurações</h1>
+                    <p>Configure seu perfil e preferências</p>
+                </div>
+                
+                <div class="config-content">
+                    <!-- User Profile -->
+                    <div class="card profile-card">
+                        <h3><i class="fas fa-user-cog"></i> Perfil do Técnico</h3>
+                        <div class="profile-form">
+                            <div class="form-group">
+                                <label><i class="fas fa-id-card"></i> Nome do Técnico</label>
+                                <input type="text" id="nomeTecnico" placeholder="Seu nome completo">
+                                <small>Atualiza automaticamente ao digitar</small>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-gas-pump"></i> Valor Total Gasolina (R$)</label>
+                                <input type="number" id="valorGasolinaConfig" placeholder="0.00" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System Info -->
+                    <div class="card system-card">
+                        <h3><i class="fas fa-info-circle"></i> Informações do Sistema</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <i class="fas fa-fingerprint"></i>
+                                <div>
+                                    <h4>ID do Técnico</h4>
+                                    <p id="infoTecnicoId">carregando...</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-wifi"></i>
+                                <div>
+                                    <h4>Total Instalações</h4>
+                                    <p id="infoTotalInstalacoes">0</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-gas-pump"></i>
+                                <div>
+                                    <h4>Total Gasolina</h4>
+                                    <p>R$ <span id="infoTotalGasolina">0.00</span></p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-wallet"></i>
+                                <div>
+                                    <h4>Saldo Disponível</h4>
+                                    <p>R$ <span id="infoSaldo">0.00</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Técnicos -->
+            <div id="tecnicos" class="tab-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-users"></i> Todos os Técnicos</h1>
+                    <p>Veja o desempenho de todos os técnicos</p>
+                </div>
+                
+                <div class="tecnicos-content">
+                    <div class="card tecnicos-card">
+                        <div class="card-header-actions">
+                            <h3><i class="fas fa-chart-bar"></i> Ranking de Técnicos</h3>
+                            <button class="btn-refresh" onclick="controle.mostrarTodosTecnicos()">
+                                <i class="fas fa-sync-alt"></i>
+                                Atualizar
+                            </button>
+                        </div>
+                        <div id="listaTecnicos" class="tecnicos-list">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- MODAL RÁPIDO DE NOVA INSTALAÇÃO -->
-        <button class="btn-floating" onclick="controle.abrirModalCadastroRapido()">
-            <span>➕</span>
-        </button>
     </div>
 
-    <!-- MODAL DE CADASTRO RÁPIDO -->
-    <div id="modalCadastroRapido" class="modal hidden">
+    <!-- Modal Cadastro Rápido -->
+    <div id="modalCadastroRapido" class="modal">
         <div class="modal-content">
-            <h2>Nova Instalação Rápida</h2>
-            
-            <div class="form-group">
-                <label>Código (5 ou 7 dígitos):</label>
-                <input type="text" id="codigoModal" class="form-input">
+            <div class="modal-header">
+                <h3><i class="fas fa-bolt"></i> Nova Instalação Rápida</h3>
+                <button class="modal-close" onclick="controle.fecharModalCadastroRapido()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            
-            <div class="form-group">
-                <label>Data:</label>
-                <input type="date" id="dataModal" class="form-input">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><i class="fas fa-barcode"></i> Código (5 ou 7 dígitos)</label>
+                    <input type="text" id="codigoModal" class="modal-input">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Data</label>
+                    <input type="date" id="dataModal" class="modal-input">
+                </div>
             </div>
-
-            <div class="modal-actions">
-                <button class="btn btn-danger" onclick="controle.fecharModalCadastroRapido()">Cancelar</button>
-                <button class="btn btn-primary" onclick="controle.salvarCadastroRapido()">Salvar</button>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="controle.fecharModalCadastroRapido()">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+                <button class="btn-confirm" onclick="controle.salvarCadastroRapido()">
+                    <i class="fas fa-check"></i>
+                    Salvar
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="controle.abrirModalCadastroRapido()">
+        <i class="fas fa-plus"></i>
+    </button>
 
     <script src="script.js"></script>
 </body>
