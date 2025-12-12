@@ -3,148 +3,513 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Instalações - Fibra Ótica</title>
+    <title>Installer Pro | Controle de Instalações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.css">
     <link rel="stylesheet" href="style.css">
-    <!-- Biblioteca para gerar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Header com Título -->
-        <div class="card text-center mb-4">
-            <h1 class="main-title">📊 Controle de Instalações</h1>
-            <p class="subtitle">Sistema de gestão para técnicos de fibra ótica</p>
-        </div>
-
-        <!-- Info do Técnico -->
-        <div class="tecnico-info">
-            <div class="text-center">
-                <small>Seu ID de Técnico:</small>
-                <div class="tecnico-id" id="tecnicoInfo">Carregando...</div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-fiber"></i>
+                <h1>Installer<span>Pro</span></h1>
             </div>
-        </div>
+            
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user-hard-hat"></i>
+                </div>
+                <div class="user-details">
+                    <input type="text" id="nomeTecnico" class="tecnico-input" placeholder="Digite seu nome" value="Técnico 01">
+                    <p class="user-id" id="tecnicoInfo">ID: TEC-001</p>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-item active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#instalacoes" class="nav-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>Instalações</span>
+                </a>
+                <a href="#financeiro" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Financeiro</span>
+                </a>
+                <a href="#relatorios" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Relatórios</span>
+                </a>
+                <a href="#config" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            
+            <div class="stats-sidebar">
+                <div class="stat-card mini">
+                    <i class="fas fa-calendar-day"></i>
+                    <div>
+                        <p class="stat-label">Hoje</p>
+                        <p class="stat-value" id="instalacoesHoje">0</p>
+                    </div>
+                </div>
+                <div class="stat-card mini">
+                    <i class="fas fa-gas-pump"></i>
+                    <div>
+                        <p class="stat-label">Gasolina</p>
+                        <p class="stat-value" id="gasolinaMes">R$ 0</p>
+                    </div>
+                </div>
+                <button class="btn-novo-mes" onclick="controle.prepararNovoMes()">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Novo Mês</span>
+                </button>
+            </div>
+        </aside>
 
-        <!-- Formulário de Nova Instalação -->
-        <div class="card">
-            <div class="card-header">
-                <span>📋</span>
-                <h3>Nova Instalação</h3>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-bar">
+                <div class="periodo-selector">
+                    <button class="btn-periodo" onclick="controle.filtrarPorPeriodo('hoje')">
+                        <i class="fas fa-calendar-day"></i>
+                        Hoje
+                    </button>
+                    <button class="btn-periodo active" onclick="controle.filtrarPorPeriodo('mes')">
+                        <i class="fas fa-calendar-alt"></i>
+                        Este Mês
+                    </button>
+                    <button class="btn-periodo" onclick="controle.filtrarPorPeriodo('tudo')">
+                        <i class="fas fa-history"></i>
+                        Todo Histórico
+                    </button>
+                    <div class="date-range">
+                        <input type="date" id="dataInicio" class="date-input">
+                        <span>até</span>
+                        <input type="date" id="dataFim" class="date-input">
+                        <button class="btn-apply" onclick="controle.filtrarPorDataPersonalizada()">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="month-display">
+                        <i class="fas fa-calendar"></i>
+                        <span id="mesAtual">Dezembro 2024</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <p>Visão geral do mês atual</p>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Instalações</h3>
+                            <p class="stat-number" id="totalInstalacoesMes">0</p>
+                            <p class="stat-subtitle" id="valorUnitarioInfo">Valor unitário: R$ 0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card success">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Faturamento</h3>
+                            <p class="stat-number" id="faturamentoMes">R$ 0</p>
+                            <p class="stat-subtitle">Receita do mês</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card warning">
+                        <div class="stat-icon">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Combustível</h3>
+                            <p class="stat-number" id="totalCombustivel">R$ 0</p>
+                            <p class="stat-subtitle">Gastos do mês</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card info">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Saldo</h3>
+                            <p class="stat-number" id="saldoFinal">R$ 0</p>
+                            <p class="stat-subtitle">Resultado líquido</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pricing Info -->
+                <div class="pricing-info">
+                    <h3><i class="fas fa-tag"></i> Tabela de Preços</h3>
+                    <div class="pricing-cards">
+                        <div class="price-card">
+                            <div class="price-header">
+                                <i class="fas fa-1"></i>
+                                <h4>1 Instalação</h4>
+                            </div>
+                            <p class="price-value">R$ 90,00</p>
+                            <p class="price-desc">Valor por instalação</p>
+                        </div>
+                        <div class="price-card">
+                            <div class="price-header">
+                                <i class="fas fa-2"></i>
+                                <h4>2 Instalações</h4>
+                            </div>
+                            <p class="price-value">R$ 100,00</p>
+                            <p class="price-desc">Cada (mesmo dia)</p>
+                        </div>
+                        <div class="price-card">
+                            <div class="price-header">
+                                <i class="fas fa-3"></i>
+                                <h4>3+ Instalações</h4>
+                            </div>
+                            <p class="price-value">R$ 110,00</p>
+                            <p class="price-desc">Cada (a partir de 3)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Ações Rápidas</h3>
+                    <div class="actions-grid">
+                        <button class="action-btn primary" onclick="showModal('instalacao')">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Nova Instalação</span>
+                        </button>
+                        <button class="action-btn warning" onclick="showModal('gasolina')">
+                            <i class="fas fa-gas-pump"></i>
+                            <span>Registrar Gasolina</span>
+                        </button>
+                        <button class="action-btn success" onclick="showModal('relatorio')">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Gerar Relatório</span>
+                        </button>
+                        <button class="action-btn danger" onclick="controle.limparMesAtual()">
+                            <i class="fas fa-eraser"></i>
+                            <span>Zerar Mês</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Recent Installations -->
+                <div class="recent-installations">
+                    <div class="section-header">
+                        <h3><i class="fas fa-history"></i> Instalações Recentes</h3>
+                        <a href="#instalacoes" class="view-all" onclick="changeSection('instalacoes')">Ver todas</a>
+                    </div>
+                    <div class="installations-list" id="listaInstalacoesRecentes">
+                        <!-- Preenchido via JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Instalações Completa -->
+            <section id="instalacoes" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-network-wired"></i> Todas as Instalações</h2>
+                    <p>Histórico completo de serviços</p>
+                </div>
+                <div id="listaInstalacoesCompleta">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </section>
+
+            <!-- Seção Financeiro -->
+            <section id="financeiro" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-pie"></i> Financeiro</h2>
+                    <p>Controle de receitas e despesas</p>
+                </div>
+                <div class="finance-grid">
+                    <div class="finance-card">
+                        <h3><i class="fas fa-money-bill-wave"></i> Resumo Mensal</h3>
+                        <div class="finance-details" id="resumoFinanceiro">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+                    <div class="finance-card">
+                        <h3><i class="fas fa-gas-pump"></i> Gastos com Combustível</h3>
+                        <div id="listaGasolinaFinanceiro">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Relatórios -->
+            <section id="relatorios" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-file-alt"></i> Relatórios</h2>
+                    <p>Gere relatórios personalizados</p>
+                </div>
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <i class="fas fa-file-pdf"></i>
+                        <h3>Relatório Completo</h3>
+                        <p>PDF com todas as instalações e finanças</p>
+                        <button class="btn-report" onclick="controle.gerarRelatorioCompleto()">
+                            Gerar Relatório
+                        </button>
+                    </div>
+                    <div class="report-card">
+                        <i class="fas fa-calendar"></i>
+                        <h3>Relatório por Período</h3>
+                        <p>Selecione datas específicas</p>
+                        <button class="btn-report" onclick="showModal('relatorioPeriodo')">
+                            Selecionar Período
+                        </button>
+                    </div>
+                    <div class="report-card">
+                        <i class="fas fa-print"></i>
+                        <h3>Imprimir Resumo</h3>
+                        <p>Versão para impressão rápida</p>
+                        <button class="btn-report" onclick="controle.imprimirResumo()">
+                            Imprimir Agora
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Nova Instalação -->
+    <div id="modalInstalacao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-network-wired"></i> Nova Instalação</h3>
+                <button class="modal-close" onclick="closeModal('instalacao')">&times;</button>
             </div>
             <form id="instalacaoForm">
                 <div class="form-group">
-                    <label class="form-label">Código do Cliente (5 ou 7 dígitos)</label>
-                    <input type="text" id="codigo" class="form-input" placeholder="12345 ou 1234567" maxlength="7" required>
+                    <label><i class="fas fa-hashtag"></i> Código do Cliente</label>
+                    <input type="text" id="codigo" placeholder="Digite 5 ou 7 dígitos" maxlength="7" required>
+                    <small>Exemplo: 12345 ou 1234567</small>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nome do Cliente</label>
-                    <input type="text" id="nome" class="form-input" placeholder="Nome completo do cliente" required>
+                    <label><i class="fas fa-user"></i> Nome do Cliente</label>
+                    <input type="text" id="nome" placeholder="Nome completo" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Data da Instalação</label>
-                    <input type="date" id="data" class="form-input" required>
+                    <label><i class="fas fa-calendar"></i> Data da Instalação</label>
+                    <input type="date" id="data" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">
-                    <span>➕</span>
-                    Adicionar Instalação
-                </button>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('instalacao')">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-check"></i>
+                        Salvar Instalação
+                    </button>
+                </div>
             </form>
         </div>
+    </div>
 
-        <!-- Controle de Gasolina -->
-        <div class="card">
-            <div class="card-header">
-                <span>⛽</span>
-                <h3>Controle de Gasolina</h3>
+    <!-- Modal Gasolina -->
+    <div id="modalGasolina" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-gas-pump"></i> Registro de Combustível</h3>
+                <button class="modal-close" onclick="closeModal('gasolina')">&times;</button>
             </div>
             <form id="gasolinaForm">
                 <div class="form-group">
-                    <label class="form-label">Data do Abastecimento</label>
-                    <input type="date" id="dataGasolina" class="form-input" required>
+                    <label><i class="fas fa-calendar"></i> Data</label>
+                    <input type="date" id="dataGasolina" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Valor Abastecido (R$)</label>
-                    <input type="number" id="valorGasolina" class="form-input" placeholder="50.00" step="0.01" required>
+                    <label><i class="fas fa-money-bill-wave"></i> Valor (R$)</label>
+                    <input type="number" id="valorGasolina" placeholder="0.00" step="0.01" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Observação (opcional)</label>
-                    <input type="text" id="observacaoGasolina" class="form-input" placeholder="Posto, combustível, etc.">
+                    <label><i class="fas fa-sticky-note"></i> Observação</label>
+                    <input type="text" id="observacaoGasolina" placeholder="Posto, tipo de combustível, etc.">
                 </div>
-                <button type="submit" class="btn btn-warning btn-block">
-                    <span>⛽</span>
-                    Adicionar Gasolina
-                </button>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('gasolina')">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-check"></i>
+                        Salvar Registro
+                    </button>
+                </div>
             </form>
-            
-            <div class="total-gasolina">
-                <h4>Total Gasolina no Mês: R$ <span id="totalGasolinaMes">0.00</span></h4>
-            </div>
-            
-            <!-- Lista de Gastos com Gasolina -->
-            <div id="listaGasolina" class="gasolina-list">
-                <!-- Preenchido via JavaScript -->
-            </div>
         </div>
+    </div>
 
-        <!-- Resumo do Dia -->
-        <div class="card">
-            <div class="card-header">
-                <span>📅</span>
-                <h3>Resumo do Dia</h3>
+    <!-- Modal Relatório Personalizado -->
+    <div id="modalRelatorio" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-pdf"></i> Gerar Relatório PDF</h3>
+                <button class="modal-close" onclick="closeModal('relatorio')">&times;</button>
             </div>
-            <div id="resumoDia" class="resumo-grid">
-                <!-- JavaScript vai preencher aqui -->
+            <div class="form-group">
+                <label><i class="fas fa-user-tag"></i> Nome do Técnico (PDF)</label>
+                <input type="text" id="nomeTecnicoPDF" placeholder="Ex: Técnico 09, Técnico 10..." value="Técnico 01">
             </div>
-        </div>
-
-        <!-- Lista de Instalações -->
-        <div class="card">
-            <div class="card-header">
-                <span>📈</span>
-                <h3>Instalações do Mês</h3>
+            <div class="form-group">
+                <label><i class="fas fa-calendar-alt"></i> Período do Relatório</label>
+                <div class="periodo-options">
+                    <label class="radio-label">
+                        <input type="radio" name="periodo" value="mes" checked>
+                        <span>Mês Atual</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="periodo" value="personalizado">
+                        <span>Período Personalizado</span>
+                    </label>
+                </div>
             </div>
-            <div id="listaInstalacoes">
-                <!-- JavaScript vai preencher aqui -->
+            <div class="form-group" id="periodoPersonalizado" style="display: none;">
+                <div class="date-range-modal">
+                    <input type="date" id="dataInicioPDF" class="date-input">
+                    <span>até</span>
+                    <input type="date" id="dataFimPDF" class="date-input">
+                </div>
             </div>
-        </div>
-
-        <!-- Totais do Mês e Botão PDF -->
-        <div class="card totais-container">
-            <div class="card-header">
-                <span>💰</span>
-                <h3>Resumo Financeiro</h3>
-            </div>
-            <div id="totalMes">
-                <!-- JavaScript vai preencher aqui -->
-            </div>
-            
-            <!-- Botão para gerar Relatório PDF -->
-            <button onclick="controle.gerarRelatorioPDF()" class="btn btn-info btn-block" style="margin-top: 20px;">
-                <span>📄</span>
-                Gerar Relatório do Mês (PDF)
-            </button>
-        </div>
-
-        <!-- Botão Admin - Ver Todos Técnicos -->
-        <div class="card text-center">
-            <button onclick="controle.mostrarTodosTecnicos()" class="btn btn-success">
-                <span>👁️</span>
-                Ver Todos os Técnicos
-            </button>
-            <div id="listaTecnicos" class="tecnicos-list">
-                <!-- Preenchido via JavaScript -->
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('relatorio')">Cancelar</button>
+                <button type="button" class="btn-primary" onclick="controle.gerarRelatorioPDFPersonalizado()">
+                    <i class="fas fa-file-pdf"></i>
+                    Gerar Relatório
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Template oculto para o relatório PDF -->
-    <div id="templateRelatorio" style="display: none; padding: 20px; font-family: Arial, sans-serif;">
-        <h2 style="color: #2E86AB; text-align: center;">📊 Relatório Mensal de Instalações</h2>
-        <p><strong>Técnico:</strong> <span id="relatorioTecnico"></span></p>
-        <p><strong>Período:</strong> <span id="relatorioPeriodo"></span></p>
-        <hr style="border: 1px solid #ddd;">
+    <!-- Modal Novo Mês -->
+    <div id="modalNovoMes" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-plus"></i> Preparar Novo Mês</h3>
+                <button class="modal-close" onclick="closeModal('novoMes')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><i class="fas fa-exclamation-triangle"></i> <strong>Atenção!</strong></p>
+                <p>Esta ação irá:</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> Zerar os totais do mês atual</li>
+                    <li><i class="fas fa-check"></i> Manter o histórico completo</li>
+                    <li><i class="fas fa-check"></i> Iniciar novo mês com contadores zerados</li>
+                </ul>
+                <p>O histórico antigo ficará disponível para consulta.</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('novoMes')">Cancelar</button>
+                <button type="button" class="btn-danger" onclick="controle.confirmarNovoMes()">
+                    <i class="fas fa-play"></i>
+                    Iniciar Novo Mês
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template PDF (oculto) -->
+    <div id="templateRelatorio" style="display: none; padding: 30px; font-family: 'Inter', sans-serif;">
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #4f46e5; padding-bottom: 20px;">
+            <h1 style="color: #4f46e5; margin: 0;">📊 RELATÓRIO DE INSTALAÇÕES</h1>
+            <p style="color: #6b7280; margin: 5px 0;"><strong>Sistema Installer Pro</strong></p>
+            <p style="color: #6b7280; margin: 0;">Período: <span id="relatorioPeriodo"></span></p>
+            <p style="color: #6b7280; margin: 0;">Técnico: <span id="relatorioTecnico"></span></p>
+        </div>
         <div id="corpoRelatorio"></div>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #9ca3af; font-size: 12px;">
+            <p>Relatório gerado automaticamente pelo Sistema Installer Pro</p>
+            <p>© 2024 - Todos os direitos reservados</p>
+        </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Funções para modais
+        function showModal(type) {
+            document.getElementById(`modal${type.charAt(0).toUpperCase() + type.slice(1)}`).style.display = 'flex';
+            
+            // Mostrar/esconder período personalizado
+            if (type === 'relatorio') {
+                const periodoRadios = document.querySelectorAll('input[name="periodo"]');
+                periodoRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const personalizadoDiv = document.getElementById('periodoPersonalizado');
+                        personalizadoDiv.style.display = this.value === 'personalizado' ? 'block' : 'none';
+                    });
+                });
+            }
+        }
+        
+        function closeModal(type) {
+            document.getElementById(`modal${type.charAt(0).toUpperCase() + type.slice(1)}`).style.display = 'none';
+        }
+        
+        // Fecha modal ao clicar fora
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // Trocar seção
+        function changeSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelector(`[href="#${sectionId}"]`).classList.add('active');
+        }
+        
+        // Atualizar mês atual
+        function atualizarMesAtual() {
+            const hoje = new Date();
+            const meses = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            document.getElementById('mesAtual').textContent = 
+                `${meses[hoje.getMonth()]} ${hoje.getFullYear()}`;
+        }
+        
+        // Data inicial do mês
+        window.onload = function() {
+            atualizarMesAtual();
+            const hoje = new Date().toISOString().split('T')[0];
+            const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 2).toISOString().split('T')[0];
+            
+            document.getElementById('data').value = hoje;
+            document.getElementById('dataGasolina').value = hoje;
+            document.getElementById('dataInicio').value = inicioMes;
+            document.getElementById('dataFim').value = hoje;
+            document.getElementById('dataInicioPDF').value = inicioMes;
+            document.getElementById('dataFimPDF').value = hoje;
+        };
+    </script>
 </body>
 </html>
