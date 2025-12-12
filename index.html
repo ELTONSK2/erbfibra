@@ -3,139 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Instalações - Fibra Óptica</title>
-    <link rel="stylesheet" href="style.css">
+    <title>📡 Fibra Control - Controle de Instalações</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-broadcast-tower"></i> Controle de Instalações</h1>
-            <p class="subtitle">Sistema de Gestão para Instalações de Fibra Óptica</p>
-        </header>
-
-        <div class="app-container">
-            <!-- Painel de Controle -->
-            <div class="control-panel">
-                <div class="date-info">
-                    <h2><i class="far fa-calendar-alt"></i> Controle Diário</h2>
-                    <div class="current-date" id="currentDate"></div>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">📡</div>
+                <div>
+                    <h1>Fibra Control</h1>
+                    <p class="tagline">Controle inteligente de instalações</p>
                 </div>
+            </div>
+            <div class="date-display">
+                <i class="fas fa-calendar-day"></i>
+                <span id="currentDate"></span>
+            </div>
+        </div>
+    </header>
 
-                <!-- Formulário de Instalação -->
-                <div class="form-section">
-                    <h3><i class="fas fa-plus-circle"></i> Nova Instalação</h3>
-                    <form id="installationForm">
-                        <div class="form-group">
-                            <label for="techName"><i class="fas fa-user"></i> Nome do Técnico:</label>
-                            <input type="text" id="techName" required placeholder="Digite o nome do técnico">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="clientId"><i class="fas fa-id-card"></i> Matrícula do Cliente:</label>
-                            <input type="text" id="clientId" pattern="\d{3,7}" 
-                                   title="Digite 3 a 7 dígitos" required 
-                                   placeholder="000 a 9999999">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="clientName"><i class="fas fa-user-tie"></i> Nome do Cliente:</label>
-                            <input type="text" id="clientName" required placeholder="Nome completo do cliente">
-                        </div>
-
-                        <div class="form-group">
-                            <label><i class="fas fa-gas-pump"></i> Abastecimento:</label>
-                            <div class="fuel-section">
-                                <div class="fuel-option">
-                                    <input type="checkbox" id="fuelToday">
-                                    <label for="fuelToday">Abastecimento Hoje</label>
-                                </div>
-                                <input type="number" id="fuelValue" placeholder="Valor (R$)" min="0" step="0.01">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-save"></i> Registrar Instalação
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Resumo do Dia -->
-                <div class="summary-section">
-                    <h3><i class="fas fa-chart-bar"></i> Resumo do Dia</h3>
-                    <div class="summary-cards">
-                        <div class="summary-card">
-                            <span class="card-title">Instalações Hoje</span>
-                            <span class="card-value" id="todayCount">0</span>
-                        </div>
-                        <div class="summary-card">
-                            <span class="card-title">Valor Total</span>
-                            <span class="card-value" id="todayTotal">R$ 0,00</span>
-                        </div>
-                        <div class="summary-card">
-                            <span class="card-title">Abastecimento</span>
-                            <span class="card-value" id="fuelTotal">R$ 0,00</span>
-                        </div>
+    <!-- Main App -->
+    <main class="app-container">
+        <!-- Left Panel - Form & Controls -->
+        <div class="left-panel">
+            <!-- Quick Stats -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Hoje</span>
+                        <span class="stat-value" id="todayCount">0</span>
                     </div>
                 </div>
-
-                <!-- Controles do Mês -->
-                <div class="month-controls">
-                    <h3><i class="fas fa-cogs"></i> Controles do Mês</h3>
-                    <div class="buttons">
-                        <button id="generateReport" class="btn-report">
-                            <i class="fas fa-file-pdf"></i> Gerar PDF do Mês
-                        </button>
-                        <button id="newMonth" class="btn-new-month">
-                            <i class="fas fa-calendar-plus"></i> Iniciar Novo Mês
-                        </button>
-                        <button id="viewHistory" class="btn-history">
-                            <i class="fas fa-history"></i> Ver Histórico
-                        </button>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Valor</span>
+                        <span class="stat-value" id="todayTotal">R$ 0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-gas-pump"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Combustível</span>
+                        <span class="stat-value" id="fuelTotal">R$ 0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Lista de Instalações -->
-            <div class="installations-list">
-                <h3><i class="fas fa-list"></i> Instalações de Hoje</h3>
-                <div class="table-container">
-                    <table id="installationsTable">
-                        <thead>
-                            <tr>
-                                <th>Técnico</th>
-                                <th>Matrícula</th>
-                                <th>Cliente</th>
-                                <th>Valor</th>
-                                <th>Abastecimento</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="installationsBody">
-                            <!-- Dados serão inseridos via JavaScript -->
-                        </tbody>
-                    </table>
+            <!-- New Installation Form -->
+            <div class="form-card">
+                <div class="card-header">
+                    <i class="fas fa-plus-circle"></i>
+                    <h2>Nova Instalação</h2>
                 </div>
-                <div class="pricing-info">
-                    <h4><i class="fas fa-money-bill-wave"></i> Tabela de Preços</h4>
-                    <ul>
-                        <li><strong>1 instalação:</strong> R$ 90,00</li>
-                        <li><strong>2 instalações:</strong> R$ 100,00 cada (Total: R$ 200,00)</li>
-                        <li><strong>3+ instalações:</strong> R$ 110,00 cada</li>
-                    </ul>
+                
+                <form id="installationForm" class="installation-form">
+                    <!-- Technician Input -->
+                    <div class="input-group">
+                        <label for="techName">
+                            <i class="fas fa-user-hard-hat"></i>
+                            Técnico
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="techName" required placeholder="Nome do técnico">
+                        </div>
+                    </div>
+
+                    <!-- Client ID Input -->
+                    <div class="input-group">
+                        <label for="clientId">
+                            <i class="fas fa-id-card"></i>
+                            Matrícula do Cliente
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-hashtag"></i>
+                            <input type="text" id="clientId" pattern="\d{3,7}" 
+                                   title="3 a 7 dígitos" required 
+                                   placeholder="Ex: 12345">
+                        </div>
+                    </div>
+
+                    <!-- Client Name Input -->
+                    <div class="input-group">
+                        <label for="clientName">
+                            <i class="fas fa-user-tie"></i>
+                            Nome do Cliente
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-users"></i>
+                            <input type="text" id="clientName" required placeholder="Nome completo">
+                        </div>
+                    </div>
+
+                    <!-- Fuel Section -->
+                    <div class="input-group">
+                        <label>
+                            <i class="fas fa-gas-pump"></i>
+                            Abastecimento
+                        </label>
+                        <div class="fuel-section">
+                            <div class="switch-container">
+                                <label class="switch">
+                                    <input type="checkbox" id="fuelToday">
+                                    <span class="slider"></span>
+                                </label>
+                                <span>Abastecimento hoje</span>
+                            </div>
+                            <div class="input-with-icon">
+                                <i class="fas fa-money-bill"></i>
+                                <input type="number" id="fuelValue" placeholder="Valor (R$)" min="0" step="0.01" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Registrar Instalação
+                    </button>
+                </form>
+            </div>
+
+            <!-- Month Controls -->
+            <div class="controls-card">
+                <div class="card-header">
+                    <i class="fas fa-cogs"></i>
+                    <h2>Controles do Mês</h2>
+                </div>
+                
+                <div class="controls-grid">
+                    <button id="generateReport" class="control-btn pdf-btn">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Gerar PDF</span>
+                        <small>Relatório mensal</small>
+                    </button>
+                    
+                    <button id="newMonth" class="control-btn month-btn">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Novo Mês</span>
+                        <small>Iniciar novo período</small>
+                    </button>
+                    
+                    <button id="viewHistory" class="control-btn history-btn">
+                        <i class="fas fa-history"></i>
+                        <span>Histórico</span>
+                        <small>Meses anteriores</small>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Modal para Histórico -->
-        <div id="historyModal" class="modal">
-            <div class="modal-content">
+        <!-- Right Panel - Installations List -->
+        <div class="right-panel">
+            <div class="list-header">
+                <div class="list-title">
+                    <i class="fas fa-list-check"></i>
+                    <h2>Instalações de Hoje</h2>
+                </div>
+                <div class="list-count" id="todayListCount">0 registros</div>
+            </div>
+
+            <!-- Installations List -->
+            <div class="installations-list" id="installationsList">
+                <!-- Items will be added here by JavaScript -->
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Nenhuma instalação registrada hoje</p>
+                    <small>Comece adicionando uma instalação</small>
+                </div>
+            </div>
+
+            <!-- Price Info -->
+            <div class="price-card">
+                <div class="card-header">
+                    <i class="fas fa-tags"></i>
+                    <h3>Tabela de Preços</h3>
+                </div>
+                
+                <div class="price-list">
+                    <div class="price-item">
+                        <div class="price-icon">1x</div>
+                        <div class="price-details">
+                            <span class="price-title">1 instalação</span>
+                            <span class="price-value">R$ 90,00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-item">
+                        <div class="price-icon">2x</div>
+                        <div class="price-details">
+                            <span class="price-title">2 instalações</span>
+                            <span class="price-value">R$ 100,00 cada</span>
+                            <small class="price-total">Total: R$ 200,00</small>
+                        </div>
+                    </div>
+                    
+                    <div class="price-item">
+                        <div class="price-icon">3+</div>
+                        <div class="price-details">
+                            <span class="price-title">3+ instalações</span>
+                            <span class="price-value">R$ 110,00 cada</span>
+                            <small class="price-total">3x = R$ 330,00</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-archive"></i> Histórico de Meses</h3>
                 <span class="close">&times;</span>
-                <h2><i class="fas fa-archive"></i> Histórico de Meses</h2>
-                <div id="historyList"></div>
+            </div>
+            <div class="modal-body" id="historyList">
+                <!-- History will be loaded here -->
             </div>
         </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
