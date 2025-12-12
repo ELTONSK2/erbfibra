@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Instalações - Fibra Ótica</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Biblioteca para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header com Título -->
+        <div class="card text-center mb-4">
+            <h1 class="main-title">📊 Controle de Instalações</h1>
+            <p class="subtitle">Sistema de gestão para técnicos de fibra ótica</p>
+        </div>
+
+        <!-- Info do Técnico -->
+        <div class="tecnico-info">
+            <div class="text-center">
+                <small>Seu ID de Técnico:</small>
+                <div class="tecnico-id" id="tecnicoInfo">Carregando...</div>
+            </div>
+        </div>
+
+        <!-- Formulário de Nova Instalação -->
+        <div class="card">
+            <div class="card-header">
+                <span>📋</span>
+                <h3>Nova Instalação</h3>
+            </div>
+            <form id="instalacaoForm">
+                <div class="form-group">
+                    <label class="form-label">Código do Cliente (5 ou 7 dígitos)</label>
+                    <input type="text" id="codigo" class="form-input" placeholder="12345 ou 1234567" maxlength="7" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nome do Cliente</label>
+                    <input type="text" id="nome" class="form-input" placeholder="Nome completo do cliente" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data da Instalação</label>
+                    <input type="date" id="data" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span>➕</span>
+                    Adicionar Instalação
+                </button>
+            </form>
+        </div>
+
+        <!-- Controle de Gasolina -->
+        <div class="card">
+            <div class="card-header">
+                <span>⛽</span>
+                <h3>Controle de Gasolina</h3>
+            </div>
+            <form id="gasolinaForm">
+                <div class="form-group">
+                    <label class="form-label">Data do Abastecimento</label>
+                    <input type="date" id="dataGasolina" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor Abastecido (R$)</label>
+                    <input type="number" id="valorGasolina" class="form-input" placeholder="50.00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Observação (opcional)</label>
+                    <input type="text" id="observacaoGasolina" class="form-input" placeholder="Posto, combustível, etc.">
+                </div>
+                <button type="submit" class="btn btn-warning btn-block">
+                    <span>⛽</span>
+                    Adicionar Gasolina
+                </button>
+            </form>
+            
+            <div class="total-gasolina">
+                <h4>Total Gasolina no Mês: R$ <span id="totalGasolinaMes">0.00</span></h4>
+            </div>
+            
+            <!-- Lista de Gastos com Gasolina -->
+            <div id="listaGasolina" class="gasolina-list">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Resumo do Dia -->
+        <div class="card">
+            <div class="card-header">
+                <span>📅</span>
+                <h3>Resumo do Dia</h3>
+            </div>
+            <div id="resumoDia" class="resumo-grid">
+                <!-- JavaScript vai preencher aqui -->
+            </div>
+        </div>
+
+        <!-- Lista de Instalações -->
+        <div class="card">
+            <div class="card-header">
+                <span>📈</span>
+                <h3>Instalações do Mês</h3>
+            </div>
+            <div id="listaInstalacoes">
+                <!-- JavaScript vai preencher aqui -->
+            </div>
+        </div>
+
+        <!-- Totais do Mês e Botão PDF -->
+        <div class="card totais-container">
+            <div class="card-header">
+                <span>💰</span>
+                <h3>Resumo Financeiro</h3>
+            </div>
+            <div id="totalMes">
+                <!-- JavaScript vai preencher aqui -->
+            </div>
+            
+            <!-- Botão para gerar Relatório PDF -->
+            <button onclick="controle.gerarRelatorioPDF()" class="btn btn-info btn-block" style="margin-top: 20px;">
+                <span>📄</span>
+                Gerar Relatório do Mês (PDF)
+            </button>
+        </div>
+
+        <!-- Botão Admin - Ver Todos Técnicos -->
+        <div class="card text-center">
+            <button onclick="controle.mostrarTodosTecnicos()" class="btn btn-success">
+                <span>👁️</span>
+                Ver Todos os Técnicos
+            </button>
+            <div id="listaTecnicos" class="tecnicos-list">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Template oculto para o relatório PDF -->
+    <div id="templateRelatorio" style="display: none; padding: 20px; font-family: Arial, sans-serif;">
+        <h2 style="color: #2E86AB; text-align: center;">📊 Relatório Mensal de Instalações</h2>
+        <p><strong>Técnico:</strong> <span id="relatorioTecnico"></span></p>
+        <p><strong>Período:</strong> <span id="relatorioPeriodo"></span></p>
+        <hr style="border: 1px solid #ddd;">
+        <div id="corpoRelatorio"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
